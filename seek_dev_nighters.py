@@ -39,11 +39,11 @@ def get_midnighters(page_of_attempts):
     return midnighters
 
 
-def output_midnighters_to_console(midnighters_dict):
+def output_midnighters_to_console(midnighters_dict, item=1):
     print('\nMidnighters:            Solution attempts\n')
     for (midnighter, num) in sorted(
                                 midnighters_dict.items(),
-                                key=itemgetter(1),
+                                key=itemgetter(item=item),
                                 reverse=True,
                                 ):
         print('{:<20}  | {}'.format(midnighter, num))
