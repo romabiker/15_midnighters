@@ -15,17 +15,14 @@ def get_devman_api_solution_attempts(page):
     return response.text
 
 
-def load_attempts():
-    page = 1
-    while True:
-        attempts_json = json.loads(get_devman_api_solution_attempts(page))
-        yield attempts_json
-        page += 1
-        if not page <= attempts_json['number_of_pages']:
-            break
+def get_midnighters_list():
+    midnighters_list = []
+    for page_of_attempts in load_attempts():
+        midnighters_list.extend(get_page_of_midnighters(page_of_attempts))
+    return midnighters_list
 
 
-def get_midnighters(page_of_attempts):
+def get_page_of_midnighters(page_of_attempts):
     midnighters = []
     for attempt in page_of_attempts['records']:
         attempt_timestamp = attempt['timestamp']
@@ -39,20 +36,23 @@ def get_midnighters(page_of_attempts):
     return midnighters
 
 
-def output_midnighters_to_console(midnighters_dict, second_item=1):
+def load_attempts():
+    page = 1
+    while True:
+        attempts_json = json.loads(get_devman_api_solution_attempts(page))
+        yield attempts_json
+        page += 1
+        if not page <= attempts_json['number_of_pages']:
+            break
+
+
+def output_midnighters_to_console(midnighters_counter):
     print('\nMidnighters:            Solution attempts\n')
-    for (midnighter, num) in sorted(
-                                midnighters_dict.items(),
-                                key=itemgetter(second_item),
-                                reverse=True,
-                                ):
-        print('{:<20}  | {}'.format(midnighter, num))
+    for midnighter, attempts in midnighters_counter.most_common():
+        print('{:<20}  | {}'.format(midnighter, attempts))
     print()
 
 
 if __name__ == '__main__':
-    midnighters_counter = Counter([
-                                get_midnighters(page_of_attempts)
-                                for page_of_attempts in load_attempts()
-                                ])
+    midnighters_counter = Counter(get_midnighters_list())
     output_midnighters_to_console(midnighters_counter)
